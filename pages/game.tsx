@@ -189,7 +189,11 @@ export default function Game() {
           <Cam letterToSign={letterToSign} setStatus={setSuccess} setConfidence={setConfidence}  />
       
           {/* <p className="text-5xl font-inter text-center text-blue-600">coSign</p> */}
-          <img src="logo.png" className="w-32 "></img>
+          <div className="flex justify-between w-screen px-8 items-center align-center">
+            <img src="back.svg" className="w-12 fill-current text-pale_yellow"></img>
+            <img src="logo.png" className="w-32 "></img>
+            <div></div>
+          </div>
         <div className="flex gap-4">
             <div className="mx-auto px-12 bg-pale_yellow border-4 border-light_brown rounded-lg shadow-md justify-center align-center text-center">
                 <p className="text-3xl font-bold text-center mt-4">{timeLeft}</p>
