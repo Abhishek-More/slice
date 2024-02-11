@@ -20,25 +20,11 @@ const app = initializeApp(firebaseConfig);
 const firestore = getFirestore(app);
 
 export default function FirebaseTest() {
-  const [data, setData] = useState([] as YourDocument[]);
+  const [data, setData] = useState();
 
   useEffect(() => {
-    // const fetchData = async () => {
-    //   try {
-    //     const snapshot = await getDocs(collection(firestore, 'test'));
-    //     const newData = snapshot.docs.map((doc) => ({
-    //       id: doc.id,
-    //       ...doc.data(),
-    //     })) as YourDocument[];
-    //     setData(newData);
-    //     console.log(newData)
-    //   } catch (error) {
-    //     console.error('Error fetching data:', error);
-    //   }
-    // };
-
-    // fetchData();
     const unsub = onSnapshot(doc(firestore, "test", "yes"), (doc) => {
+      //setData(doc.data());
       console.log("Current data: ", doc.data());
   });
   }, []); 
