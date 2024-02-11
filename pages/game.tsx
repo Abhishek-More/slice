@@ -288,9 +288,7 @@ export default function Game() {
             
                 <button
                     onClick={async () => {
-                    await clearDatabase();
-                    setTimeLeft(63);
-                    setGameStarted(true);
+                    turnOn();
                     }}
                     className="text-3xl font-bold text-center bg-blue-500 text-white py-2 px-4 rounded-md mt-4"
                 >
