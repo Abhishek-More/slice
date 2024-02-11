@@ -10,6 +10,8 @@ const inter = Inter({ subsets: ["latin"] });
 
 random.use(seedrandom("coSign6") as unknown as RNG);
 
+const goodLetters = "abcdhilopr";
+
 export default function Game() {
     const [timeLeft, setTimeLeft] = useState(0);
     const [letterToSign, setLetterToSign] = useState("get ready!");
@@ -26,7 +28,7 @@ export default function Game() {
             let randomLetter = letterToSign;
             setSuccess(false);
             while (randomLetter === letterToSign) {
-                randomLetter = String.fromCharCode(65 + random.int(0, 25))
+                randomLetter = goodLetters[random.int(0, goodLetters.length - 1)];
             }
             setLetterToSign(randomLetter);
 

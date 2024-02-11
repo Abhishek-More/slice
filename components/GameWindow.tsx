@@ -15,6 +15,7 @@ function sketch(p5: P5CanvasInstance<MySketchProps>) {
     p5.createCanvas(1000, 600)
     p5.textSize(92);
     p5.textAlign(p5.CENTER, p5.CENTER);
+    p5.textFont("monospace");
 };
   p5.frameRate(60);
 
@@ -91,13 +92,13 @@ let letterImages = {
   p5.draw = () => {
     letterX += letterXVelocity;
     letterY += letterYVelocity;
-    letterYVelocity += 0.045;
+    letterYVelocity += 0.05;
     letterRotation += letterRotationVelocity;
     if (shattered)
     {
         fragmentX += fragmentXVelocity;
         fragmentY += fragmentYVelocity;
-        fragmentYVelocity += 0.045;
+        fragmentYVelocity += 0.05;
         fragmentRotation += fragmentRotationVelocity;
     }
 
