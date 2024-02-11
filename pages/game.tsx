@@ -23,6 +23,11 @@ export default function Game() {
     const [playerNumber, setPlayerNumber] = useState(1);
     const [confidence, setConfidence] = useState(0);
     const [confidenceForThisLetter, setConfidenceForThisLetter] = useState(0);
+    const [player1score, setPlayer1score] = useState(0);
+    const [player2score, setPlayer2score] = useState(0);
+    const [letters, setLetters] = useState([]);
+    const [player1confidence, setPlayer1confidence] = useState([]);
+    const [player2confidence, setPlayer2confidence] = useState([]);
 
     const firebaseConfig = {
         apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -38,6 +43,34 @@ export default function Game() {
 
     let ender;
 
+    function calculateAverage(numbers: number[], letters: string[]): Map<string, number> {
+        const letterNumberMap: Map<string, { sum: number, count: number }> = new Map();
+      
+        for (let i = 0; i < letters.length; i++) {
+          const letter = letters[i];
+          const number = numbers[i];
+      
+          if (!letterNumberMap.has(letter)) {
+            letterNumberMap.set(letter, { sum: number, count: 1 });
+          } else {
+            const currentValues = letterNumberMap.get(letter) || { sum: 0, count: 0 };
+            letterNumberMap.set(letter, {
+              sum: currentValues.sum + number,
+              count: currentValues.count + 1
+            });
+          }
+        }
+      
+        const averageMap = {};
+        letterNumberMap.forEach((value, key) => {
+          const average = value.sum / value.count;
+          averageMap[key] = average;
+        });
+      
+        return averageMap;
+      }
+      
+      
     async function clearDatabase()
     {
         await setDoc(doc(firestore, "players", "player" + String(playerNumber)), {
@@ -54,8 +87,7 @@ export default function Game() {
             let currLetter = document.getElementById("signLabel");
             let expected = document.getElementById("expected");
             let conf = document.getElementById("confidence")
-            // console.log("currentletter: " + currLetter?.innerHTML.toLowerCase())
-            // console.log("expected: " + expected?.innerHTML.toLowerCase())
+          
             if(!success && (currLetter?.innerHTML.toLowerCase() === expected?.innerHTML.toLowerCase())) {
                 setSuccess(true);
                 setConfidenceForThisLetter(Number(conf?.innerHTML));
@@ -79,7 +111,6 @@ export default function Game() {
             setTimeout(async () => {
                 // store the letter data in firebase
                 if ( success) {
-                    console.log("success")
                     const docRef = doc(firestore, "players", "player" + String(playerNumber));
                     const docSnap = await getDoc(docRef);
 
@@ -92,18 +123,26 @@ export default function Game() {
                         correct.push(true)
                         confidences.push(confidenceForThisLetter)
                         letters.push(letterToSign)
+                        setLetters(letters)
+                        if (playerNumber === 1) {
+                            setPlayer1score(score + 1)
+                            setPlayer1confidence(confidences)
+                        }
+                        else {
+                            setPlayer2score(score + 1)
+                            setPlayer2confidence(confidences)
+                        }
                     await setDoc(doc(firestore, "players", "player" + String(playerNumber)), {
                             //confidences: confidences.push(letterToSign),
                             correct: correct,
                             confidences: confidences,
                             letters:  letters,
-                            score : score + 1
+                            score : score + 1,
+                            
                         })
                     }
-                    console.log("done adding to firebase")
                 }
                 else {
-                    console.log("failure")
                     const docRef = doc(firestore, "players", "player" + String(playerNumber));
                     const docSnap = await getDoc(docRef);
 
@@ -113,13 +152,18 @@ export default function Game() {
                         let confidences = docSnap.data().confidences;
                         let score = docSnap.data().score;
                         let letters = docSnap.data().letters;
-                        console.log(correct)
-                        console.log(confidences)
-                        console.log(score)
-                        console.log(letters)
+                        setLetters(letters)
                         correct.push(false)
                         confidences.push(confidenceForThisLetter)
                         letters.push(letterToSign)
+                        if (playerNumber === 1) {
+                            setPlayer1score(score)
+                            setPlayer1confidence(confidences)
+                        }
+                        else {
+                            setPlayer2score(score)
+                            setPlayer2confidence(confidences)
+                        }
                     await setDoc(doc(firestore, "players", "player" + String(playerNumber)), {
                             //confidences: confidences.push(letterToSign),
                             correct: correct,
@@ -128,7 +172,7 @@ export default function Game() {
                             score : score
                         })
                     }
-                    console.log("done adding to firebase")}  
+                    }  
             }, 6500);
         }
 
@@ -164,6 +208,10 @@ export default function Game() {
             </li>
 
         </ul>
+        <div>Player 1 Score : {player1score}</div>
+        <div>Player 2 Score : {player2score}</div>
+        <div>{JSON.stringify(calculateAverage(player1confidence, letters))}</div>
+        <div>{JSON.stringify(calculateAverage(player2confidence, letters))}</div>
         <button onClick={async () => {await clearDatabase(); setTimeLeft(63); setGameStarted(true); }} className="text-3xl font-bold text-center">Start</button>
     </div>
     );
