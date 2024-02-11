@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { getFirestore, collection, getDocs } from 'firebase/firestore';
+import { getFirestore, collection, getDocs, doc, onSnapshot } from 'firebase/firestore';
 import { initializeApp } from 'firebase/app';
 
 const firebaseConfig = {
@@ -19,34 +19,35 @@ interface YourDocument {
 const app = initializeApp(firebaseConfig);
 const firestore = getFirestore(app);
 
-export default function Home() {
+export default function FirebaseTest() {
   const [data, setData] = useState([] as YourDocument[]);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const snapshot = await getDocs(collection(firestore, 'test'));
-        const newData = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        })) as YourDocument[];
-        setData(newData);
-        console.log(newData)
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    };
+    // const fetchData = async () => {
+    //   try {
+    //     const snapshot = await getDocs(collection(firestore, 'test'));
+    //     const newData = snapshot.docs.map((doc) => ({
+    //       id: doc.id,
+    //       ...doc.data(),
+    //     })) as YourDocument[];
+    //     setData(newData);
+    //     console.log(newData)
+    //   } catch (error) {
+    //     console.error('Error fetching data:', error);
+    //   }
+    // };
 
-    fetchData();
+    // fetchData();
+    const unsub = onSnapshot(doc(firestore, "test", "yes"), (doc) => {
+      console.log("Current data: ", doc.data());
+  });
   }, []); 
 
   return (
     <div>
       <h1>Hello, Next.js!</h1>
       <ul>
-        {data.map((item) => (
-          <li key={item.id}>{item.name}</li>
-        ))}
+        {JSON.stringify(data)}
       </ul>
     </div>
   );

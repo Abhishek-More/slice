@@ -6,10 +6,13 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "demon": "nodemon --exec \"npm run dev\" --ext ts,tsx"
   },
   "dependencies": {
     "firebase": "^10.8.0",
+    "@p5-wrapper/next": "^1.0.2",
+    "@p5-wrapper/react": "^4.3.2",
     "next": "14.1.0",
     "react": "^18",
     "react-dom": "^18"
