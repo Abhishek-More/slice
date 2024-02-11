@@ -273,11 +273,14 @@ export default function Game() {
         <div className="min-h-screen flex flex-col items-center gap-6 justify-center bg-background_green">
           
           <Cam letterToSign={letterToSign} setStatus={setSuccess} setConfidence={setConfidence}  />
-      
+          
           {/* <p className="text-5xl font-inter text-center text-blue-600">coSign</p> */}
-          <div className="flex justify-between w-screen px-8 items-center align-center">
+          <div className="flex justify-between w-screen px-8 items-center align-center pt-4">
             <img src="back.svg" className="w-12 fill-current text-pale_yellow"></img>
-            <img src="logo.png" className="w-32 "></img>
+            <div className="flex gap-2">
+                <img src="logo.png" className="w-32"></img>
+                <img src="1a.png"  className="w-12"/>
+            </div>
             <div></div>
           </div>
         <div className="flex gap-4">
@@ -337,6 +340,8 @@ export default function Game() {
                 <GameWindow letterToSign={letterToSign} success={success} gameStarted={gameStarted} gameDone={gameDone} isWinner={isWinner} />
             </div>
         </div>
+        <a href="https://www.signlanguageforum.com/asl/fingerspelling/alphabet/" className=" font-bold text-pale_yellow flex justify-center items-center gap-2 pb-8"><img src="resources.svg" className="w-6"/><div className="hover:underline ">RESOURCES</div></a>
+
         </div>
       );
       
