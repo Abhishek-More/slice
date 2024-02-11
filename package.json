@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "demon": "nodemon --exec \"npm run dev\" --ext ts,tsx"
   },
   "dependencies": {
     "@chakra-ui/react": "^2.8.2",
@@ -23,7 +24,10 @@
     "react-dom": "latest",
     "react-helmet": "^6.1.0",
     "react-icons": "^4.1.0",
-    "react-webcam": "^7.2.0"
+    "react-webcam": "^7.2.0",
+    "firebase": "^10.8.0",
+    "@p5-wrapper/next": "^1.0.2",
+    "@p5-wrapper/react": "^4.3.2"
   },
   "devDependencies": {
     "@types/fingerpose": "^0.1.1",

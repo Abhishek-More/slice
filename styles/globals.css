@@ -56,3 +56,7 @@ img {
   height: 20%;
   /* background: royalblue; */
 }
+#defaultCanvas0 {
+  @apply mx-auto mt-2;
+}
+
