@@ -8,19 +8,21 @@ import Cam from "@/components/Cam";
 
 const inter = Inter({ subsets: ["latin"] });
 
-random.use(seedrandom("coSign2") as unknown as RNG);
+random.use(seedrandom("coSign6") as unknown as RNG);
 
 export default function Game() {
-    const [timeLeft, setTimeLeft] = useState(60);
-    const [letterToSign, setLetterToSign] = useState("a");
+    const [timeLeft, setTimeLeft] = useState(0);
+    const [letterToSign, setLetterToSign] = useState("get ready!");
     const [success, setSuccess] = useState(false);
+    const [gameStarted, setGameStarted] = useState(false);
+    const [playerNumber, setPlayerNumber] = useState(1);
 
     let ender;
     
     useEffect(() => {        
-        if (!timeLeft) return;
+        if (!timeLeft || !gameStarted) return;
 
-        if (timeLeft % 5 === 0) {
+        if (timeLeft % 7 === 0) {
             let randomLetter = letterToSign;
             setSuccess(false);
             while (randomLetter === letterToSign) {
@@ -34,11 +36,12 @@ export default function Game() {
                 if(currLetter?.innerHTML.toLowerCase() === expected?.innerHTML.toLowerCase()) {
                     setSuccess(true);
                 }
-            }, 3250);
+            }, 6500);
 
             setTimeout(() => {
                 // store the letter data in firebase
-            }, 4900);
+
+            }, 6000);
         }
 
         const intervalId = setInterval(() => {
@@ -59,6 +62,19 @@ export default function Game() {
         <p className="text-3xl font-bold text-center">{timeLeft}</p>
         <button onClick={() => setSuccess(true)} className="text-3xl font-bold text-center">{success ? "yay!" : "SHATTER"}</button>
         <p id="expected">{letterToSign}</p>
+        <p>You are player {playerNumber}</p>
+        <ul>
+            <li>
+                <input type="radio" name="player" value="1" id="player1select" onClick={() => setPlayerNumber(1)} />
+                <label className="text-2xl" htmlFor="player1select">Player 1</label>
+            </li>
+            <li>
+                <input type="radio" name="player" value="2" id="player2select" onClick={() => setPlayerNumber(2)} />
+                <label className="text-2xl" htmlFor="player2select">Player 2</label>
+            </li>
+
+        </ul>
+        <button onClick={() => {setTimeLeft(63); setGameStarted(true)}} className="text-3xl font-bold text-center">Start</button>
     </div>
     );
 }
