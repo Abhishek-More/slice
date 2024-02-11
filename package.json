@@ -29,6 +29,7 @@
     "react-dom": "latest",
     "react-helmet": "^6.1.0",
     "react-icons": "^4.1.0",
+    "react-router-dom": "^6.22.0",
     "react-webcam": "^7.2.0",
     "seedrandom": "^3.0.5"
   },

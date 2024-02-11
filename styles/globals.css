@@ -26,7 +26,9 @@ img {
 
 #webcam {
   position: fixed;
-  right: 0; 
+  border-radius: 15px;
+  top: 15px;
+  right: 15px; 
   height: 20%;
   width: 20%;
   object-fit: cover;
@@ -36,7 +38,8 @@ img {
 
 #gesture-canvas {
   position: fixed;
-  right: 0;
+  right: 15px;
+  top: 15px;
   height: 20%;
   width: 20%;
   object-fit: cover;

@@ -43,6 +43,11 @@ export default function Game() {
 
     let ender;
 
+    async function beginGame()
+    {
+        await clearDatabase(); setTimeLeft(63); setGameStarted(true);
+    }
+
     function calculateAverage(numbers: number[], letters: string[]): Map<string, number> {
         const letterNumberMap: Map<string, { sum: number, count: number }> = new Map();
       
@@ -73,7 +78,15 @@ export default function Game() {
       
     async function clearDatabase()
     {
-        await setDoc(doc(firestore, "players", "player" + String(playerNumber)), {
+        await setDoc(doc(firestore, "players", "player1"), {
+            //confidences: confidences.push(letterToSign),
+            correct: [],
+            confidences: [],
+            letters:  [],
+            score : 0
+        })
+
+        await setDoc(doc(firestore, "players", "player2"), {
             //confidences: confidences.push(letterToSign),
             correct: [],
             confidences: [],
@@ -81,6 +94,30 @@ export default function Game() {
             score : 0
         })
     }
+
+    async function turnOn()
+    {
+        console.log("Its turning me on")
+        await setDoc(doc(firestore, "gameState", "state" ), {
+            isOn : true,
+        })
+    }
+
+    useEffect( () => {
+        const funky = async () => {
+
+        const docRef = doc(firestore, "gameState", "state");
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+
+            await setDoc(doc(firestore, "gameState", "state"), {
+                    isOn : false,
+                })
+            }
+        }
+    funky() 
+    });
 
     useEffect(() => {
         setInterval(() => {
@@ -110,7 +147,7 @@ export default function Game() {
 
             setTimeout(async () => {
                 // store the letter data in firebase
-                if ( success) {
+                if ( success ) {
                     const docRef = doc(firestore, "players", "player" + String(playerNumber));
                     const docSnap = await getDoc(docRef);
 
@@ -156,14 +193,6 @@ export default function Game() {
                         correct.push(false)
                         confidences.push(confidenceForThisLetter)
                         letters.push(letterToSign)
-                        if (playerNumber === 1) {
-                            setPlayer1score(score)
-                            setPlayer1confidence(confidences)
-                        }
-                        else {
-                            setPlayer2score(score)
-                            setPlayer2confidence(confidences)
-                        }
                     await setDoc(doc(firestore, "players", "player" + String(playerNumber)), {
                             //confidences: confidences.push(letterToSign),
                             correct: correct,
@@ -172,7 +201,27 @@ export default function Game() {
                             score : score
                         })
                     }
+                    
                     }  
+
+                    // OTHER PLAYER
+                    const docRef = doc(firestore, "players", "player" + (playerNumber == 1 ? "2" : "1"));
+                    const docSnap = await getDoc(docRef);
+                if (docSnap.exists()) {
+                    let confidences = docSnap.data().confidences;
+                    let score = docSnap.data().score;
+
+                    if (playerNumber === 1) {
+                        setPlayer2score(score)
+                        if (confidences.length > 0)
+                            setPlayer2confidence(confidences[confidences.length - 1])
+                    }
+                    else {
+                        setPlayer1score(score)
+                        if (confidences.length > 0)
+                            setPlayer1confidence(confidences[confidences.length - 1])
+                    }
+                }
             }, 6500);
         }
 
@@ -183,6 +232,23 @@ export default function Game() {
         return () => clearInterval(intervalId);
     }, [timeLeft]);
 
+    useEffect(() => {
+        setTimeout(() => {
+            setInterval(async () => {
+                const docRef = doc(firestore, "gameState", "state");
+                const docSnap = await getDoc(docRef);
+                if (docSnap.exists()) {
+                    //let confidences = docSnap.data().confidences;
+                    let isOn = docSnap.data().isOn;
+                    if (isOn && !gameStarted)
+                    {
+                        beginGame();
+                    }
+                }
+            }, 500)
+        }, 2000)
+        
+    }, []);
 
     return (
         <div className="min-h-screen flex flex-col items-center gap-6 justify-center bg-background_green">
@@ -196,16 +262,10 @@ export default function Game() {
           </div>
         <div className="flex gap-4">
             <div className="mx-auto px-12 bg-pale_yellow border-4 border-light_brown rounded-lg shadow-md justify-center align-center text-center">
-                <p className="text-3xl font-bold text-center mt-4">{timeLeft}</p>
-                <p id="confidence" className="text-xl text-green-500">{confidence}</p>
-                <p className="text-xl">{confidenceForThisLetter}</p>
-            
-                <button
-                    onClick={() => setSuccess(true)}
-                    className={`text-3xl font-bold text-center mt-4 ${success ? 'bg-green-500 text-white' : 'bg-red-500 text-white'}`}
-                >
-                    {success ? "yay!" : "SHATTER"}
-                </button>
+                <p className="text-3xl font-bold text-center mt-4 invisible">{timeLeft}</p>
+                <p id="confidence" className="text-xl text-green-500 invisible">{confidence}</p>
+                <p className="text-xl invisible">{confidenceForThisLetter}</p>
+
             
                 <p id="expected" className="text-xl mt-4">{letterToSign}</p>
                 <p className="text-xl">You are player {playerNumber}</p>
@@ -237,16 +297,14 @@ export default function Game() {
                 <div className="text-xl mt-4">PLAYER 1 SCORE: {player1score}</div>
                 <div className="text-xl">PLAYER 2 SCORE: {player2score}</div>
             
-                <div className="text-xl mt-4">{JSON.stringify(calculateAverage(player1confidence, letters))}</div>
-                <div className="text-xl">{JSON.stringify(calculateAverage(player2confidence, letters))}</div>
+                {/* <div className="text-xl mt-4">{JSON.stringify(calculateAverage(player1confidence, letters))}</div>
+                <div className="text-xl">{JSON.stringify(calculateAverage(player2confidence, letters))}</div> */}
             
                 <button
                     onClick={async () => {
-                    await clearDatabase();
-                    setTimeLeft(63);
-                    setGameStarted(true);
+                    turnOn();
                     }}
-                    className="text-3xl font-bold text-center bg-blue-500 text-white py-2 px-4 rounded-md mt-4"
+                    className="text-lg font-semibold z-50 border-[1px] border-black text-center bg-blue-500 text-white py-2 px-4 rounded-md mt-4 font-sans hover:bg-black hover:text-white"
                 >
                     Start
                 </button>

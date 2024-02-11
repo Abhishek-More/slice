@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import { motion, useAnimation } from "framer-motion";
+import Link from "next/link";
 
 export default function Home() {
   const controls = useAnimation();
@@ -30,12 +31,12 @@ export default function Home() {
     <div className="relative bg-background_green from-green-300 via-yellow-300 to-pink-300 h-screen flex flex-col justify-center items-center gap-12">
       <div className="z-10 border-2 border-pale_yellow rounded-lg h-screen w-screen m-4 flex flex-col justify-center items-center gap-12 relative">
         <img src="logo.gif" alt="logo" className="w-[800px]" loop />
-        <a className="text-pale_yellow border-pale_yellow border-2 text-4xl px-4 py-2 rounded-lg font-bold hover:bg-pale_yellow hover:text-background_green hover:cursor-pointer transition-all duration-300 transform hover:translate-y-2">
+        <Link href='/game' className="text-pale_yellow border-pale_yellow border-2 text-4xl px-4 py-2 rounded-lg font-bold hover:bg-pale_yellow hover:text-background_green hover:cursor-pointer transition-all duration-300 transform hover:translate-y-2">
           START GAME
-        </a>
+        </Link>
         <div className="flex w-full justify-center items-center gap-12">
             <motion.img
-                src="0.png"
+                src="0.png"ad
                 className="w-28"
                 initial="hidden"
                 animate={controls}
