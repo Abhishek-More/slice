@@ -11,10 +11,19 @@ type MySketchProps = SketchProps & ComponentProps;
   
 function sketch(p5: P5CanvasInstance<MySketchProps>) {
 
-  p5.setup = () => p5.createCanvas(1000, 600);
+  p5.setup = () => {
+    p5.createCanvas(1000, 600)
+    p5.textSize(92);
+    p5.textAlign(p5.CENTER, p5.CENTER);
+};
   p5.frameRate(60);
 
   let backgroundImage = p5.loadImage("/playfield.png");
+let letterImages = {
+    "a": p5.loadImage("/letter/a.png"),
+    "b": p5.loadImage("/letter/b.png"),
+
+}
 
   let letterToSign = "get ready!";
   let letterX = 0;
@@ -62,6 +71,23 @@ function sketch(p5: P5CanvasInstance<MySketchProps>) {
     }
   };
 
+  function drawLetter(letter: string, x: number, y: number, rotation: number) {
+    p5.push();
+    p5.translate(x, y);
+    p5.rotate(rotation);
+    if (letterImages[letter] === undefined) {
+        p5.text(letterToSign, 0, 0);
+        // p5.image(letterImages["a"], 0, 0, 100, 100);
+    }
+    else
+    {
+        p5.image(letterImages[letter], 0, 0, 50, 50);
+    }
+    p5.pop();
+  }
+
+
+
   p5.draw = () => {
     letterX += letterXVelocity;
     letterY += letterYVelocity;
@@ -75,7 +101,10 @@ function sketch(p5: P5CanvasInstance<MySketchProps>) {
         fragmentRotation += fragmentRotationVelocity;
     }
 
+    p5.imageMode(p5.CORNER);
     p5.image(backgroundImage, 0, 0, p5.width, p5.height);
+    p5.imageMode(p5.CENTER);
+
     if (shattered) {
         p5.background(255, 0, 0);
     }
@@ -87,23 +116,11 @@ function sketch(p5: P5CanvasInstance<MySketchProps>) {
     // p5.fill(255);
     // p5.pop();
     
-    p5.push();
-    p5.textSize(92);
-    p5.textAlign(p5.CENTER, p5.CENTER);
-    p5.translate(letterX, letterY);
-    p5.rotate(letterRotation);
-    p5.text(letterToSign, 0, 0);
-    p5.pop();
+    drawLetter(letterToSign, letterX, letterY, letterRotation);
 
     if (shattered)
     {
-        p5.push();
-        p5.textSize(92);
-        p5.textAlign(p5.CENTER, p5.CENTER);
-        p5.translate(fragmentX, fragmentY);
-        p5.rotate(fragmentRotation);
-        p5.text(letterToSign, 0, 0);
-        p5.pop();
+        drawLetter(letterToSign, fragmentX, fragmentY, fragmentRotation);
     }
   };
 };

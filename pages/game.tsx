@@ -8,7 +8,7 @@ import Cam from "@/components/Cam";
 
 const inter = Inter({ subsets: ["latin"] });
 
-random.use(seedrandom("coSign") as unknown as RNG);
+random.use(seedrandom("coSign2") as unknown as RNG);
 
 export default function Game() {
     const [timeLeft, setTimeLeft] = useState(60);
