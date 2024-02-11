@@ -18,8 +18,9 @@ import {
 } from "@chakra-ui/react"
 
 import { Signimage, Signpass } from "../components/handimage"
+import { model } from "@tensorflow/tfjs"
 
-export default function Cam({ letterToSign, setStatus } : { letterToSign: string, setStatus: Dispatch<SetStateAction<boolean>>}) {
+export default function Cam({ letterToSign, setStatus, setConfidence } : { letterToSign: string, setStatus: Dispatch<SetStateAction<boolean>>, setConfidence}) {
   const webcamRef = useRef(null)
   const canvasRef = useRef(null)
 
@@ -128,6 +129,9 @@ export default function Cam({ letterToSign, setStatus } : { letterToSign: string
           const maxConfidence = confidence.indexOf(
             Math.max.apply(undefined, confidence)
           )
+
+          const model_overall_confidence = estimatedGestures.gestures[maxConfidence].confidence / 9
+          setConfidence(model_overall_confidence);
 
           //setting up game state, looking for thumb emoji
           gamestate = "played"
