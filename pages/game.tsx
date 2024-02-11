@@ -17,7 +17,7 @@ const goodLetters = "abcdhilopr";
 
 export default function Game() {
     const [timeLeft, setTimeLeft] = useState(0);
-    const [letterToSign, setLetterToSign] = useState("get ready!");
+    const [letterToSign, setLetterToSign] = useState("");
     const [success, setSuccess] = useState(false);
     const [gameStarted, setGameStarted] = useState(false);
     const [playerNumber, setPlayerNumber] = useState(1);
@@ -28,6 +28,8 @@ export default function Game() {
     const [letters, setLetters] = useState([]);
     const [player1confidence, setPlayer1confidence] = useState([]);
     const [player2confidence, setPlayer2confidence] = useState([]);
+    const [gameDone, setGameDone] = useState(false);
+    const [isWinner, setIsWinner] = useState(false);
 
     const firebaseConfig = {
         apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -132,8 +134,10 @@ export default function Game() {
         }, 1000);
     }, []);
     
-    useEffect(() => {        
-        if (!timeLeft || !gameStarted) return;
+    useEffect(() => {
+        if (!gameStarted) return;
+
+        
 
         if (timeLeft % 7 === 0) {
             let randomLetter = letterToSign;
@@ -225,6 +229,21 @@ export default function Game() {
             }, 6500);
         }
 
+        if (timeLeft < 60)
+        {
+            setGameDone(true);
+            if (player1score > player2score) {
+                setIsWinner(playerNumber === 1);
+            }
+            else {
+                setIsWinner(playerNumber === 2);
+            }
+        }
+
+        if (timeLeft === 0) {
+            return;
+        }
+
         const intervalId = setInterval(() => {
             setTimeLeft(timeLeft - 1);
         }, 1000);
@@ -252,6 +271,7 @@ export default function Game() {
 
     return (
         <div className="min-h-screen flex flex-col items-center gap-6 justify-center bg-background_green">
+          
           <Cam letterToSign={letterToSign} setStatus={setSuccess} setConfidence={setConfidence}  />
       
           {/* <p className="text-5xl font-inter text-center text-blue-600">coSign</p> */}
@@ -292,10 +312,14 @@ export default function Game() {
                     />
                     PLAYER 2
                     </label>
+
                 </div>
             
                 <div className="text-xl mt-4">PLAYER 1 SCORE: {player1score}</div>
                 <div className="text-xl">PLAYER 2 SCORE: {player2score}</div>
+
+                <p>{JSON.stringify(isWinner)}</p>
+          <p>{JSON.stringify(gameDone)}</p>
             
                 {/* <div className="text-xl mt-4">{JSON.stringify(calculateAverage(player1confidence, letters))}</div>
                 <div className="text-xl">{JSON.stringify(calculateAverage(player2confidence, letters))}</div> */}
@@ -310,7 +334,7 @@ export default function Game() {
                 </button>
             </div>
             <div className="mx-auto p-4 bg-pale_yellow border-4 border-light_brown rounded-lg shadow-md">
-                <GameWindow letterToSign={letterToSign} success={success} />
+                <GameWindow letterToSign={letterToSign} success={success} gameStarted={gameStarted} gameDone={gameDone} isWinner={isWinner} />
             </div>
         </div>
         </div>

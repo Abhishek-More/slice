@@ -5,6 +5,9 @@ import { NextReactP5Wrapper } from "@p5-wrapper/next";
 type ComponentProps = {
     letterToSign: string;
     success: boolean;
+    gameStarted: boolean;
+    gameDone: boolean;
+    isWinner: boolean;
 };
 
 type MySketchProps = SketchProps & ComponentProps;
@@ -64,6 +67,10 @@ function sketch(p5: P5CanvasInstance<MySketchProps>) {
         "p": 173,
         "r": 280,
     }
+
+    let getReadyImage = p5.loadImage("/get_ready.png");
+    let goImage = p5.loadImage("/go.png");
+    let winImage = p5.loadImage("/win.png");
     
     p5.setup = () => {
         p5.createCanvas(1000, 600)
@@ -76,7 +83,7 @@ function sketch(p5: P5CanvasInstance<MySketchProps>) {
       p5.frameRate(60);
     
 
-  let letterToSign = "get ready!";
+  let letterToSign = "";
   let letterX = 0;
   let letterY = 0;
   let letterXVelocity = 5;
@@ -96,6 +103,11 @@ function sketch(p5: P5CanvasInstance<MySketchProps>) {
     let shatterX = 0;
     let shatterY = 0;
 
+    let gameStartedAnimation = 0;
+
+    let gameStarted = false;
+    let gameDone = false;
+    let isWinner = false;
   p5.updateWithProps = (props: MySketchProps) => {
     if (props.letterToSign && letterToSign !== props.letterToSign) {
         letterToSign = props.letterToSign;
@@ -107,6 +119,18 @@ function sketch(p5: P5CanvasInstance<MySketchProps>) {
         letterYVelocity = -7;
         letterRotation = 0;
         letterRotationVelocity = p5.random(-0.001, 0.001);
+    }
+    if (props.gameStarted !== undefined) {
+        if (props.gameStarted && !gameStarted) {
+            gameStartedAnimation = 200;
+        }
+        gameStarted = props.gameStarted;
+    }
+    if (props.gameDone !== undefined) {
+        gameDone = props.gameDone;
+    }
+    if (props.isWinner !== undefined) {
+        isWinner = props.isWinner;
     }
     if (props.success !== undefined) {
         shattered = props.success;
@@ -206,6 +230,33 @@ function sketch(p5: P5CanvasInstance<MySketchProps>) {
     p5.image(splatterImage, shatterX, shatterY, 200, 200);
     p5.tint(255, 255, 255, 255);
     p5.push();
+
+
+    p5.push();
+    p5.translate(p5.width / 2, p5.height / 2);
+    
+    if (gameStartedAnimation > 0) {
+        gameStartedAnimation -= 1;
+        p5.tint(255, 255, 255, gameStartedAnimation);
+        p5.image(goImage, 0,0, 400, 500);
+        p5.tint(255, 255, 255, 255);
+    }
+    
+    if (gameDone) {
+        if (isWinner) {
+            p5.rotate(p5.sin(p5.frameCount / 15) * 0.05);
+            p5.image(winImage, 0,0, 400, 800);
+        }
+    }
+
+    if (!gameStarted) {
+        p5.rotate(p5.sin(p5.frameCount / 15) * 0.05);
+        p5.image(getReadyImage, 0,0, 900, 170);
+    }
+
+    p5.pop();
+
+
     
 
     if (shattered)
@@ -225,5 +276,5 @@ function sketch(p5: P5CanvasInstance<MySketchProps>) {
 
 export default function Page(props: ComponentProps) {
 
-  return <NextReactP5Wrapper sketch={sketch} letterToSign={props.letterToSign} success={props.success} />;
+  return <NextReactP5Wrapper sketch={sketch} letterToSign={props.letterToSign} success={props.success} gameStarted={props.gameStarted} gameDone={props.gameDone} isWinner={props.isWinner} />;
 }
