@@ -4,6 +4,8 @@ import GameWindow from "@/components/GameWindow";
 import { use, useEffect, useState } from "react";
 import random, { RNG } from "random";
 import seedrandom from "seedrandom";
+import { getFirestore, collection, getDoc, doc, onSnapshot, setDoc } from 'firebase/firestore';
+import { initializeApp } from 'firebase/app';
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -14,7 +16,18 @@ export default function Game() {
     const [letterToSign, setLetterToSign] = useState("a");
     const [success, setSuccess] = useState(false);
 
-    
+    const firebaseConfig = {
+        apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+        authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+        projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+        storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+        messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+        appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+      };
+      
+    const app = initializeApp(firebaseConfig);
+    const firestore = getFirestore(app);
+
     useEffect(() => {        
         if (!timeLeft) return;
 
@@ -26,12 +39,49 @@ export default function Game() {
             }
             setLetterToSign(randomLetter);
 
-            setTimeout(() => {
+            setTimeout( async () => {
                 // store the letter data in firebase
+                if (success) {
+                    const docRef = doc(firestore, "players", "SF");
+                    const docSnap = await getDoc(docRef);
 
-            }, 4900);
+                    if (docSnap.exists()) {
+                        //let confidences = docSnap.data().confidences;
+                        let correct = docSnap.data().correct;
+                        let incorrect = docSnap.data().letters;
+                        let score = docSnap.data().score;
+                        let letters = docSnap.data().letters;
+                    await setDoc(doc(firestore, "players", "yes"), {
+                            //confidences: confidences.push(letterToSign),
+                            correct: correct.push(letterToSign),
+                            incorrect: incorrect,
+                            letters:  letters.push(letterToSign),
+                            score : score + 1
+                        });
+                    }
+                }
+                else {
+                    const docRef = doc(firestore, "players", "SF");
+                    const docSnap = await getDoc(docRef);
+
+                    if (docSnap.exists()) {
+                        //let confidences = docSnap.data().confidences;
+                        let correct = docSnap.data().correct;
+                        let incorrect = docSnap.data().letters;
+                        let score = docSnap.data().score;
+                        let letters = docSnap.data().letters;
+                    await setDoc(doc(firestore, "players", "yes"), {
+                            //confidences: confidences.push(letterToSign),
+                            correct: correct,
+                            incorrect: incorrect.push(letterToSign),
+                            letters:  letters.push(letterToSign),
+                            score : score
+                        });
+                    }
+                }
+            , 4900});
         }
-
+    
         const intervalId = setInterval(() => {
             setTimeLeft(timeLeft - 1);
         }, 1000);

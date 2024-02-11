@@ -21,7 +21,7 @@ export default function FirebaseTestUpload() {
     const [val, setVal] = useState<string>();
     const [name, setName] = useState<string>();
     const [player, setPlayer] = useState<string>();
-    
+
 
     const addData = async () => {
         try {
@@ -35,17 +35,17 @@ export default function FirebaseTestUpload() {
         }
     };
 
-    const updatePlayer = async () => {
-        try {
-            await setDoc(doc(firestore, "players", player!), {
-                confidences : confidences,
-                correct : correct,
-                incorrect : incorrect,
-                letters : letters,
-                score : score,
-            })
-        }
-    }
+    // const updatePlayer = async () => {
+    //     try {
+    //         await setDoc(doc(firestore, "players", player!), {
+    //             confidences : confidences,
+    //             correct : correct,
+    //             incorrect : incorrect,
+    //             letters : letters,
+    //             score : score,
+    //         })
+    //     }
+    // }
     
     return (
       <div>

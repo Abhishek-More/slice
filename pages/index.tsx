@@ -120,7 +120,7 @@ export default function Home() {
           Handsigns.zSign,
         ])
 
-        const estimatedGestures = await GE.estimate(hand[0].landmarks, 6.5)
+        const estimatedGestures = await GE.estimate(hand[0].landmarks, 0)
         // document.querySelector('.pose-data').innerHTML =JSON.stringify(estimatedGestures.poseData, null, 2);
 
         if (
@@ -132,8 +132,9 @@ export default function Home() {
             Math.max.apply(undefined, confidence)
           )
 
+          const model_overall_confidence = estimatedGestures.gestures[maxConfidence].confidence / 9
+
           //setting up game state, looking for thumb emoji
-          console.log("HI")
           gamestate = "played"
           if (gamestate === "played") {
             document.querySelector("#app-title").innerText = ""
