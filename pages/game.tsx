@@ -43,6 +43,11 @@ export default function Game() {
 
     let ender;
 
+    async function beginGame()
+    {
+        await clearDatabase(); setTimeLeft(63); setGameStarted(true);
+    }
+
     function calculateAverage(numbers: number[], letters: string[]): Map<string, number> {
         const letterNumberMap: Map<string, { sum: number, count: number }> = new Map();
       
@@ -82,6 +87,30 @@ export default function Game() {
         })
     }
 
+    async function turnOn()
+    {
+        console.log("Its turning me on")
+        await setDoc(doc(firestore, "gameState", "state" ), {
+            isOn : true,
+        })
+    }
+
+    useEffect( () => {
+        const funky = async () => {
+
+        const docRef = doc(firestore, "gameState", "state");
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+
+            await setDoc(doc(firestore, "gameState", "state"), {
+                    isOn : false,
+                })
+            }
+        }
+    funky() 
+    });
+
     useEffect(() => {
         setInterval(() => {
             let currLetter = document.getElementById("signLabel");
@@ -110,7 +139,7 @@ export default function Game() {
 
             setTimeout(async () => {
                 // store the letter data in firebase
-                if ( success) {
+                if ( success ) {
                     const docRef = doc(firestore, "players", "player" + String(playerNumber));
                     const docSnap = await getDoc(docRef);
 
@@ -183,6 +212,23 @@ export default function Game() {
         return () => clearInterval(intervalId);
     }, [timeLeft]);
 
+    useEffect(() => {
+        setTimeout(() => {
+            setInterval(async () => {
+                const docRef = doc(firestore, "gameState", "state");
+                const docSnap = await getDoc(docRef);
+                if (docSnap.exists()) {
+                    //let confidences = docSnap.data().confidences;
+                    let isOn = docSnap.data().isOn;
+                    if (isOn && !gameStarted)
+                    {
+                        beginGame();
+                    }
+                }
+            }, 500)
+        }, 2000)
+        
+    }, []);
 
     return (
     <div>
@@ -212,7 +258,7 @@ export default function Game() {
         <div>Player 2 Score : {player2score}</div>
         <div>{JSON.stringify(calculateAverage(player1confidence, letters))}</div>
         <div>{JSON.stringify(calculateAverage(player2confidence, letters))}</div>
-        <button onClick={async () => {await clearDatabase(); setTimeLeft(63); setGameStarted(true); }} className="text-3xl font-bold text-center">Start</button>
+        <button onClick={async () => {turnOn();}} className="text-3xl font-bold text-center">Start</button>
     </div>
     );
 }
