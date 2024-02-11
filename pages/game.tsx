@@ -10,15 +10,16 @@ const inter = Inter({ subsets: ["latin"] });
 random.use(seedrandom("coSign") as unknown as RNG);
 
 export default function Game() {
-    const [timeLeft, setTimeLeft] = useState(60);
-    const [letterToSign, setLetterToSign] = useState("a");
+    const [timeLeft, setTimeLeft] = useState(0);
+    const [letterToSign, setLetterToSign] = useState("get ready!");
     const [success, setSuccess] = useState(false);
+    const [gameStarted, setGameStarted] = useState(false);
 
     
     useEffect(() => {        
-        if (!timeLeft) return;
+        if (!timeLeft || !gameStarted) return;
 
-        if (timeLeft % 5 === 0) {
+        if (timeLeft % 7 === 0) {
             let randomLetter = letterToSign;
             setSuccess(false);
             while (randomLetter === letterToSign) {
@@ -29,7 +30,7 @@ export default function Game() {
             setTimeout(() => {
                 // store the letter data in firebase
 
-            }, 4900);
+            }, 6500);
         }
 
         const intervalId = setInterval(() => {
@@ -49,6 +50,10 @@ export default function Game() {
         <p className="text-3xl font-bold text-center">{timeLeft}</p>
         <button onClick={() => setSuccess(true)} className="text-3xl font-bold text-center">{success ? "yay!" : "SHATTER"}</button>
         <p>{letterToSign}</p>
+
+        {( !gameStarted ? (
+        <button className="text-5xl" onClick={() => {setGameStarted(true); setTimeLeft(63)}}>Start</button>) : null
+)}
     </div>
     );
 }
