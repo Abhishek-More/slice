@@ -23,6 +23,8 @@ export default function Game() {
     const [playerNumber, setPlayerNumber] = useState(1);
     const [confidence, setConfidence] = useState(0);
     const [confidenceForThisLetter, setConfidenceForThisLetter] = useState(0);
+    const [player1score, setPlayer1score] = useState(0);
+    const [player2score, setPlayer2score] = useState(0);
 
     const firebaseConfig = {
         apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -92,12 +94,19 @@ export default function Game() {
                         correct.push(true)
                         confidences.push(confidenceForThisLetter)
                         letters.push(letterToSign)
+                        if (playerNumber === 1) {
+                            setPlayer1score(score + 1)
+                        }
+                        else {
+                            setPlayer2score(score + 1)
+                        }
                     await setDoc(doc(firestore, "players", "player" + String(playerNumber)), {
                             //confidences: confidences.push(letterToSign),
                             correct: correct,
                             confidences: confidences,
                             letters:  letters,
-                            score : score + 1
+                            score : score + 1,
+                            
                         })
                     }
                     console.log("done adding to firebase")
@@ -120,6 +129,12 @@ export default function Game() {
                         correct.push(false)
                         confidences.push(confidenceForThisLetter)
                         letters.push(letterToSign)
+                        if (playerNumber === 1) {
+                            setPlayer1score(score)
+                        }
+                        else {
+                            setPlayer2score(score)
+                        }
                     await setDoc(doc(firestore, "players", "player" + String(playerNumber)), {
                             //confidences: confidences.push(letterToSign),
                             correct: correct,
@@ -164,6 +179,8 @@ export default function Game() {
             </li>
 
         </ul>
+        <div>Player 1 Score : {player1score}</div>
+        <div>Player 2 Score : {player2score}</div>
         <button onClick={async () => {await clearDatabase(); setTimeLeft(63); setGameStarted(true); }} className="text-3xl font-bold text-center">Start</button>
     </div>
     );
