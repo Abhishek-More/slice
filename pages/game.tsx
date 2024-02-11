@@ -78,7 +78,15 @@ export default function Game() {
       
     async function clearDatabase()
     {
-        await setDoc(doc(firestore, "players", "player" + String(playerNumber)), {
+        await setDoc(doc(firestore, "players", "player1"), {
+            //confidences: confidences.push(letterToSign),
+            correct: [],
+            confidences: [],
+            letters:  [],
+            score : 0
+        })
+
+        await setDoc(doc(firestore, "players", "player2"), {
             //confidences: confidences.push(letterToSign),
             correct: [],
             confidences: [],
@@ -185,14 +193,6 @@ export default function Game() {
                         correct.push(false)
                         confidences.push(confidenceForThisLetter)
                         letters.push(letterToSign)
-                        if (playerNumber === 1) {
-                            setPlayer1score(score)
-                            setPlayer1confidence(confidences)
-                        }
-                        else {
-                            setPlayer2score(score)
-                            setPlayer2confidence(confidences)
-                        }
                     await setDoc(doc(firestore, "players", "player" + String(playerNumber)), {
                             //confidences: confidences.push(letterToSign),
                             correct: correct,
@@ -201,7 +201,27 @@ export default function Game() {
                             score : score
                         })
                     }
+                    
                     }  
+
+                    // OTHER PLAYER
+                    const docRef = doc(firestore, "players", "player" + (playerNumber == 1 ? "2" : "1"));
+                    const docSnap = await getDoc(docRef);
+                if (docSnap.exists()) {
+                    let confidences = docSnap.data().confidences;
+                    let score = docSnap.data().score;
+
+                    if (playerNumber === 1) {
+                        setPlayer2score(score)
+                        if (confidences.length > 0)
+                            setPlayer2confidence(confidences[confidences.length - 1])
+                    }
+                    else {
+                        setPlayer1score(score)
+                        if (confidences.length > 0)
+                            setPlayer1confidence(confidences[confidences.length - 1])
+                    }
+                }
             }, 6500);
         }
 
