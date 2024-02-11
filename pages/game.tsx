@@ -21,6 +21,8 @@ export default function Game() {
     const [success, setSuccess] = useState(false);
     const [gameStarted, setGameStarted] = useState(false);
     const [playerNumber, setPlayerNumber] = useState(1);
+    const [confidence, setConfidence] = useState(0);
+    const [confidenceForThisLetter, setConfidenceForThisLetter] = useState(0);
 
     const firebaseConfig = {
         apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -51,10 +53,12 @@ export default function Game() {
         setInterval(() => {
             let currLetter = document.getElementById("signLabel");
             let expected = document.getElementById("expected");
-            console.log("currentletter: " + currLetter?.innerHTML.toLowerCase())
-            console.log("expected: " + expected?.innerHTML.toLowerCase())
-            if(currLetter?.innerHTML.toLowerCase() === expected?.innerHTML.toLowerCase()) {
+            let conf = document.getElementById("confidence")
+            // console.log("currentletter: " + currLetter?.innerHTML.toLowerCase())
+            // console.log("expected: " + expected?.innerHTML.toLowerCase())
+            if(!success && (currLetter?.innerHTML.toLowerCase() === expected?.innerHTML.toLowerCase())) {
                 setSuccess(true);
+                setConfidenceForThisLetter(Number(conf?.innerHTML));
             }
         }, 1000);
     }, []);
@@ -86,6 +90,7 @@ export default function Game() {
                         let score = docSnap.data().score;
                         let letters = docSnap.data().letters;
                         correct.push(true)
+                        confidences.push(confidenceForThisLetter)
                         letters.push(letterToSign)
                     await setDoc(doc(firestore, "players", "player" + String(playerNumber)), {
                             //confidences: confidences.push(letterToSign),
@@ -113,6 +118,7 @@ export default function Game() {
                         console.log(score)
                         console.log(letters)
                         correct.push(false)
+                        confidences.push(confidenceForThisLetter)
                         letters.push(letterToSign)
                     await setDoc(doc(firestore, "players", "player" + String(playerNumber)), {
                             //confidences: confidences.push(letterToSign),
@@ -136,12 +142,14 @@ export default function Game() {
 
     return (
     <div>
-        <Cam letterToSign={letterToSign} setStatus={setSuccess} />
+        <Cam letterToSign={letterToSign} setStatus={setSuccess} setConfidence={setConfidence} />
         <p className="text-5xl font-inter text-center">coSign</p>
         <div className="block mx-auto">
             <GameWindow letterToSign={letterToSign} success={success} />
         </div>
         <p className="text-3xl font-bold text-center">{timeLeft}</p>
+        <p id="confidence">{confidence}</p>
+        <p>{confidenceForThisLetter}</p>
         <button onClick={() => setSuccess(true)} className="text-3xl font-bold text-center">{success ? "yay!" : "SHATTER"}</button>
         <p id="expected">{letterToSign}</p>
         <p>You are player {playerNumber}</p>
