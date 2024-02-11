@@ -57,7 +57,7 @@ export default function Game() {
                             incorrect: incorrect,
                             letters:  letters.push(letterToSign),
                             score : score + 1
-                        });
+                        })
                     }
                 }
                 else {
