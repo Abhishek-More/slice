@@ -262,16 +262,10 @@ export default function Game() {
           </div>
         <div className="flex gap-4">
             <div className="mx-auto px-12 bg-pale_yellow border-4 border-light_brown rounded-lg shadow-md justify-center align-center text-center">
-                <p className="text-3xl font-bold text-center mt-4">{timeLeft}</p>
-                <p id="confidence" className="text-xl text-green-500">{confidence}</p>
-                <p className="text-xl">{confidenceForThisLetter}</p>
-            
-                <button
-                    onClick={() => setSuccess(true)}
-                    className={`text-3xl font-bold text-center mt-4 ${success ? 'bg-green-500 text-white' : 'bg-red-500 text-white'}`}
-                >
-                    {success ? "yay!" : "SHATTER"}
-                </button>
+                <p className="text-3xl font-bold text-center mt-4 invisible">{timeLeft}</p>
+                <p id="confidence" className="text-xl text-green-500 invisible">{confidence}</p>
+                <p className="text-xl invisible">{confidenceForThisLetter}</p>
+
             
                 <p id="expected" className="text-xl mt-4">{letterToSign}</p>
                 <p className="text-xl">You are player {playerNumber}</p>
@@ -303,14 +297,14 @@ export default function Game() {
                 <div className="text-xl mt-4">PLAYER 1 SCORE: {player1score}</div>
                 <div className="text-xl">PLAYER 2 SCORE: {player2score}</div>
             
-                <div className="text-xl mt-4">{JSON.stringify(calculateAverage(player1confidence, letters))}</div>
-                <div className="text-xl">{JSON.stringify(calculateAverage(player2confidence, letters))}</div>
+                {/* <div className="text-xl mt-4">{JSON.stringify(calculateAverage(player1confidence, letters))}</div>
+                <div className="text-xl">{JSON.stringify(calculateAverage(player2confidence, letters))}</div> */}
             
                 <button
                     onClick={async () => {
                     turnOn();
                     }}
-                    className="text-3xl font-bold text-center bg-blue-500 text-white py-2 px-4 rounded-md mt-4"
+                    className="text-lg font-semibold z-50 border-[1px] border-black text-center bg-blue-500 text-white py-2 px-4 rounded-md mt-4 font-sans hover:bg-black hover:text-white"
                 >
                     Start
                 </button>
