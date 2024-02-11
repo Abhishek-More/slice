@@ -229,7 +229,7 @@ export default function Game() {
             }, 6500);
         }
 
-        if (timeLeft < 60)
+        if (timeLeft < 2)
         {
             setGameDone(true);
             if (player1score > player2score) {
@@ -321,8 +321,8 @@ export default function Game() {
                 <div className="text-xl mt-4">PLAYER 1 SCORE: {player1score}</div>
                 <div className="text-xl">PLAYER 2 SCORE: {player2score}</div>
 
-                <p>{JSON.stringify(isWinner)}</p>
-          <p>{JSON.stringify(gameDone)}</p>
+                {/* <p>{JSON.stringify(isWinner)}</p> */}
+          {/* <p>{JSON.stringify(gameDone)}</p> */}
             
                 {/* <div className="text-xl mt-4">{JSON.stringify(calculateAverage(player1confidence, letters))}</div>
                 <div className="text-xl">{JSON.stringify(calculateAverage(player2confidence, letters))}</div> */}

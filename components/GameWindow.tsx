@@ -70,7 +70,7 @@ function sketch(p5: P5CanvasInstance<MySketchProps>) {
 
     let getReadyImage = p5.loadImage("/get_ready.png");
     let goImage = p5.loadImage("/go.png");
-    let winImage = p5.loadImage("/win.png");
+    let winImage = p5.loadImage("/you_win.png");
     
     p5.setup = () => {
         p5.createCanvas(1000, 600)
@@ -245,7 +245,7 @@ function sketch(p5: P5CanvasInstance<MySketchProps>) {
     if (gameDone) {
         if (isWinner) {
             p5.rotate(p5.sin(p5.frameCount / 15) * 0.05);
-            p5.image(winImage, 0,0, 400, 800);
+            p5.image(winImage, 0,0, 800, 400);
         }
     }
 
@@ -276,5 +276,5 @@ function sketch(p5: P5CanvasInstance<MySketchProps>) {
 
 export default function Page(props: ComponentProps) {
 
-  return <NextReactP5Wrapper sketch={sketch} letterToSign={props.letterToSign} success={props.success} gameStarted={props.gameStarted} gameDone={props.gameDone} isWinner={props.isWinner} />;
+  return <NextReactP5Wrapper sketch={sketch} letterToSign={props.letterToSign} success={props.success} gameStarted={props.gameStarted} gameDone={props.gameDone} isWinner={true} />;
 }
