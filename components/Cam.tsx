@@ -1,6 +1,25 @@
 import React, { useRef, useState, useEffect } from "react"
+import "@tensorflow/tfjs-backend-webgl"
+import * as handpose from "@tensorflow-models/handpose"
+import Webcam from "react-webcam"
+import { Dispatch } from "react"
+import { SetStateAction } from "react"
+import { drawHand } from "./handposeutil"
+import * as fp from "fingerpose"
+import Handsigns from "../components/handsigns"
 
-export default function Home() {
+import {
+  Text,
+  Heading,
+  Image,
+  Container,
+  Box,
+  VStack,
+} from "@chakra-ui/react"
+
+import { Signimage, Signpass } from "../components/handimage"
+
+export default function Cam({ letterToSign, setStatus } : { letterToSign: string, setStatus: Dispatch<SetStateAction<boolean>>}) {
   const webcamRef = useRef(null)
   const canvasRef = useRef(null)
 
@@ -98,7 +117,7 @@ export default function Home() {
           Handsigns.zSign,
         ])
 
-        const estimatedGestures = await GE.estimate(hand[0].landmarks, 0)
+        const estimatedGestures = await GE.estimate(hand[0].landmarks, 6.5)
         // document.querySelector('.pose-data').innerHTML =JSON.stringify(estimatedGestures.poseData, null, 2);
 
         if (
@@ -106,12 +125,9 @@ export default function Home() {
           estimatedGestures.gestures.length > 0
         ) {
           const confidence = estimatedGestures.gestures.map(p => p.confidence)
-          console.log(confidence)
           const maxConfidence = confidence.indexOf(
             Math.max.apply(undefined, confidence)
           )
-
-          const model_overall_confidence = estimatedGestures.gestures[maxConfidence].confidence / 9
 
           //setting up game state, looking for thumb emoji
           gamestate = "played"
@@ -129,6 +145,9 @@ export default function Home() {
                 currentSign++
               }
               setSign(estimatedGestures.gestures[maxConfidence].name)
+              if (letterToSign.toLowerCase() === estimatedGestures.gestures[maxConfidence].name.toLowerCase()) {
+                // setStatus(true)
+              }
             }
           } else if (gamestate === "finished") {
             return
@@ -136,29 +155,17 @@ export default function Home() {
         }
       }
       // Draw hand lines
-      const ctx = canvasRef.current.getContext("2d")
+      const ctx = canvasRef.current.getContext("2d", { willReadFrequently: true })
       drawHand(hand, ctx)
     }
   }
-
-  //   if (sign) {
-  //     console.log(sign, Signimage[sign])
-  //   }
 
   useEffect(() => {
     runHandpose()
   }, [])
 
-  function turnOffCamera() {
-    if (camState === "on") {
-      setCamState("off")
-    } else {
-      setCamState("on")
-    }
-  }
-
   return (
-      <Box>
+      <div className="absolute">
         <Container centerContent maxW="xl" height="20vh" pt="0" pb="0">
           <VStack spacing={4} align="center">
           </VStack>
@@ -175,7 +182,9 @@ export default function Home() {
 
           <Box id="webcam-container">
             {camState === "on" ? (
-              <Webcam id="webcam" ref={webcamRef} />
+              <div className="overflow-hidden rounded-lg">
+                <Webcam id="webcam" ref={webcamRef} />
+              </div>
             ) : (
               <div id="webcam"></div>
             )}
@@ -194,7 +203,7 @@ export default function Home() {
                 <Text color="black" fontSize="sm" mb={1}>
                   detected gestures
                 </Text>
-                <p>{sign}</p>
+                <p id="signLabel">{sign}</p>
               </div>
             ) : (
               " "
@@ -217,21 +226,6 @@ export default function Home() {
           {/* <pre className="pose-data" color="white" style={{position: 'fixed', top: '150px', left: '10px'}} >Pose data</pre> */}
         </Container>
 
-        <Stack id="start-button" spacing={4} direction="row" align="center">
-          <Button
-            leftIcon={
-              camState === "on" ? (
-                <RiCameraFill size={20} />
-              ) : (
-                <RiCameraOffFill size={20} />
-              )
-            }
-            onClick={turnOffCamera}
-            colorScheme="orange"
-          >
-            Camera
-          </Button>
-        </Stack>
-      </Box>
+      </div>
   )
 }
