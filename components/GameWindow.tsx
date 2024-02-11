@@ -14,11 +14,13 @@ function sketch(p5: P5CanvasInstance<MySketchProps>) {
   p5.setup = () => p5.createCanvas(1000, 600);
   p5.frameRate(60);
 
-  let letterToSign = "a";
+  let backgroundImage = p5.loadImage("/playfield.png");
+
+  let letterToSign = "get ready!";
   let letterX = 0;
   let letterY = 0;
   let letterXVelocity = 5;
-  let letterYVelocity = 5;
+  let letterYVelocity = 0;
   let letterRotation = 0;
   let letterRotationVelocity = 0;
   let shattered = false;
@@ -33,12 +35,12 @@ function sketch(p5: P5CanvasInstance<MySketchProps>) {
   p5.updateWithProps = (props: MySketchProps) => {
     if (props.letterToSign && letterToSign !== props.letterToSign) {
         letterToSign = props.letterToSign;
-        let newXVelocity = p5.random(-5, 5);
-        letterX = (p5.width / 2) - (newXVelocity * p5.width / 9);
+        let newXVelocity = p5.random(-4, 4);
+        letterX = (p5.width / 2) - (newXVelocity * p5.width / 8);
         // letterX = p5.width / 2;
         letterY = p5.height;
         letterXVelocity = newXVelocity;
-        letterYVelocity = -8.8;
+        letterYVelocity = -7;
         letterRotation = 0;
         letterRotationVelocity = p5.random(-0.001, 0.001);
     }
@@ -63,17 +65,17 @@ function sketch(p5: P5CanvasInstance<MySketchProps>) {
   p5.draw = () => {
     letterX += letterXVelocity;
     letterY += letterYVelocity;
-    letterYVelocity += 0.07;
+    letterYVelocity += 0.045;
     letterRotation += letterRotationVelocity;
     if (shattered)
     {
         fragmentX += fragmentXVelocity;
         fragmentY += fragmentYVelocity;
-        fragmentYVelocity += 0.07;
+        fragmentYVelocity += 0.045;
         fragmentRotation += fragmentRotationVelocity;
     }
 
-    p5.background(100);
+    p5.image(backgroundImage, 0, 0, p5.width, p5.height);
     if (shattered) {
         p5.background(255, 0, 0);
     }

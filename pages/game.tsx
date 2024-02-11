@@ -72,16 +72,18 @@ export default function Game() {
                         let letters = docSnap.data().letters;
                     await setDoc(doc(firestore, "players", "yes"), {
                             //confidences: confidences.push(letterToSign),
-                            correct: correct,
-                            incorrect: incorrect.push(letterToSign),
+                            correct: correct.push(letterToSign),
+                            incorrect: incorrect,
                             letters:  letters.push(letterToSign),
-                            score : score
+                            score : score + 1
                         });
                     }
                 }
-            , 4900});
+            , 6500});
+        
         }
     
+
         const intervalId = setInterval(() => {
             setTimeLeft(timeLeft - 1);
         }, 1000);
