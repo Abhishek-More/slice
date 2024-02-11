@@ -11,6 +11,7 @@ const config: Config = {
       'background_green': '#252927',
       'norm_white': '#FFFFFF',
       'pale_yellow': '#FFF9D4',
+      'light_brown': '#A8937E'
     },
     extend: {
       backgroundImage: {

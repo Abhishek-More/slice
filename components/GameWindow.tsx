@@ -10,21 +10,71 @@ type ComponentProps = {
 type MySketchProps = SketchProps & ComponentProps;
   
 function sketch(p5: P5CanvasInstance<MySketchProps>) {
+    
+    let backgroundImage = p5.loadImage("/playfield.png");
+    let letterImages = {
+        "a": p5.loadImage("/letter/a.png"),
+        "b": p5.loadImage("/letter/b.png"),
+        "c": p5.loadImage("/letter/c.png"),
+        "d": p5.loadImage("/letter/d.png"),
+        "h": p5.loadImage("/letter/h.png"),
+        "i": p5.loadImage("/letter/i.png"),
+        "l": p5.loadImage("/letter/l.png"),
+        "o": p5.loadImage("/letter/o.png"),
+        "p": p5.loadImage("/letter/p.png"),
+        "r": p5.loadImage("/letter/r.png"),
+    }
+    // let topHalfMask = p5.loadImage("/tophalf.png");
+    // let bottomHalfMask = p5.loadImage("/bottomhalf.png");
+    
+    let letterTopHalfImages = {
+        "a": p5.loadImage("/letter-tophalf/a.png"),
+        "b": p5.loadImage("/letter-tophalf/b.png"),
+        "c": p5.loadImage("/letter-tophalf/c.png"),
+        "d": p5.loadImage("/letter-tophalf/d.png"),
+        "h": p5.loadImage("/letter-tophalf/h.png"),
+        "i": p5.loadImage("/letter-tophalf/i.png"),
+        "l": p5.loadImage("/letter-tophalf/l.png"),
+        "o": p5.loadImage("/letter-tophalf/o.png"),
+        "p": p5.loadImage("/letter-tophalf/p.png"),
+        "r": p5.loadImage("/letter-tophalf/r.png"),
+    }
+    let letterBottomHalfImages = {
+        "a": p5.loadImage("/letter-bottomhalf/a.png"),
+        "b": p5.loadImage("/letter-bottomhalf/b.png"),
+        "c": p5.loadImage("/letter-bottomhalf/c.png"),
+        "d": p5.loadImage("/letter-bottomhalf/d.png"),
+        "h": p5.loadImage("/letter-bottomhalf/h.png"),
+        "i": p5.loadImage("/letter-bottomhalf/i.png"),
+        "l": p5.loadImage("/letter-bottomhalf/l.png"),
+        "o": p5.loadImage("/letter-bottomhalf/o.png"),
+        "p": p5.loadImage("/letter-bottomhalf/p.png"),
+        "r": p5.loadImage("/letter-bottomhalf/r.png"),
+    }
+    let splatterImage = p5.loadImage("/splatter.png");
+    let splatterHues = {
+        "a": 260,
+        "b": 48,
+        "c": 0,
+        "d": 147,
+        "h": 336,
+        "i": 214,
+        "l": 126,
+        "o": 36,
+        "p": 173,
+        "r": 280,
+    }
+    
+    p5.setup = () => {
+        p5.createCanvas(1000, 600)
+        p5.textSize(92);
+        p5.textAlign(p5.CENTER, p5.CENTER);
+        p5.textFont("monospace");
+        // p5.colorMode(p5.HSB);
 
-  p5.setup = () => {
-    p5.createCanvas(1000, 600)
-    p5.textSize(92);
-    p5.textAlign(p5.CENTER, p5.CENTER);
-    p5.textFont("monospace");
-};
-  p5.frameRate(60);
-
-  let backgroundImage = p5.loadImage("/playfield.png");
-let letterImages = {
-    "a": p5.loadImage("/letter/a.png"),
-    "b": p5.loadImage("/letter/b.png"),
-
-}
+    };
+      p5.frameRate(60);
+    
 
   let letterToSign = "get ready!";
   let letterX = 0;
@@ -41,6 +91,10 @@ let letterImages = {
     let fragmentYVelocity = 0;
     let fragmentRotation = 0;
     let fragmentRotationVelocity = 0;
+
+    let shatterAnimation = 0;
+    let shatterX = 0;
+    let shatterY = 0;
 
   p5.updateWithProps = (props: MySketchProps) => {
     if (props.letterToSign && letterToSign !== props.letterToSign) {
@@ -68,22 +122,45 @@ let letterImages = {
             letterXVelocity += p5.random(-3, 3);
             letterYVelocity += p5.random(-2, 2);
             letterRotationVelocity += p5.random(-0.01, 0.01);
+
+            shatterAnimation = 200;
+            shatterX = letterX;
+            shatterY = letterY;
         }
     }
   };
 
-  function drawLetter(letter: string, x: number, y: number, rotation: number) {
+  function drawLetter(letter: string, x: number, y: number, rotation: number, justTopHalf: boolean = false, justBottomHalf: boolean = false) {
     p5.push();
     p5.translate(x, y);
     p5.rotate(rotation);
-    if (letterImages[letter] === undefined) {
+    let image = letterImages[letter];
+    // console.log(image, letter);
+    // if (image === undefined) {
+        // letter = "a";
+        // image = letterImages[letter];
+        // TODO temp fix
+    // }
+    // console.log(image, letter);
+    // console.log(letterImages)
+    if (image === undefined) {
         p5.text(letterToSign, 0, 0);
         // p5.image(letterImages["a"], 0, 0, 100, 100);
+        // p5.image(image, 0, 0, 50, 50);
     }
-    else
-    {
-        p5.image(letterImages[letter], 0, 0, 50, 50);
+    else if (justTopHalf) {
+        image = letterTopHalfImages[letter];
+        p5.image(image, 0, 25, 100, 50);
     }
+    else if (justBottomHalf) {
+        image = letterBottomHalfImages[letter];
+        p5.image(image, 0, 75, 100, 50);
+
+    }
+    else {
+        p5.image(image, 0, 0, 100, 100);
+    }
+
     p5.pop();
   }
 
@@ -104,10 +181,17 @@ let letterImages = {
 
     p5.imageMode(p5.CORNER);
     p5.image(backgroundImage, 0, 0, p5.width, p5.height);
+    // p5.image(tempImage, 0, 0, 50, 50);
+    // p5.image(topHalfMask, 0, 0, 50, 50);
     p5.imageMode(p5.CENTER);
-
+    
+    p5.background(0, 255, 0, p5.max(shatterAnimation - 120, 0) );
     if (shattered) {
-        p5.background(255, 0, 0);
+        // p5.background(255, 0, 0);
+    }
+    if (shatterAnimation > 0)
+    {
+        shatterAnimation -= 1;
     }
     // p5.push();
     // p5.rectMode(p5.CENTER);
@@ -116,12 +200,23 @@ let letterImages = {
     // p5.rect(0, 0, 50, 50);
     // p5.fill(255);
     // p5.pop();
+
+    p5.pop();
+    p5.tint(splatterHues[letterToSign], 255, 255, shatterAnimation);
+    p5.image(splatterImage, shatterX, shatterY, 200, 200);
+    p5.tint(255, 255, 255, 255);
+    p5.push();
     
-    drawLetter(letterToSign, letterX, letterY, letterRotation);
 
     if (shattered)
     {
-        drawLetter(letterToSign, fragmentX, fragmentY, fragmentRotation);
+        drawLetter(letterToSign, fragmentX, fragmentY, fragmentRotation, true, false);
+        drawLetter(letterToSign, letterX, letterY, letterRotation, false, true);
+    }
+    else
+    {
+        drawLetter(letterToSign, letterX, letterY, letterRotation);
+
     }
   };
 };

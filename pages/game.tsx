@@ -231,34 +231,78 @@ export default function Game() {
     }, []);
 
     return (
-    <div>
-        <Cam letterToSign={letterToSign} setStatus={setSuccess} setConfidence={setConfidence} />
-        <p className="text-5xl font-inter text-center">coSign</p>
-        <div className="block mx-auto">
-            <GameWindow letterToSign={letterToSign} success={success} />
+        <div className="min-h-screen flex flex-col items-center gap-6 justify-center bg-background_green">
+          <Cam letterToSign={letterToSign} setStatus={setSuccess} setConfidence={setConfidence}  />
+      
+          {/* <p className="text-5xl font-inter text-center text-blue-600">coSign</p> */}
+          <div className="flex justify-between w-screen px-8 items-center align-center">
+            <img src="back.svg" className="w-12 fill-current text-pale_yellow"></img>
+            <img src="logo.png" className="w-32 "></img>
+            <div></div>
+          </div>
+        <div className="flex gap-4">
+            <div className="mx-auto px-12 bg-pale_yellow border-4 border-light_brown rounded-lg shadow-md justify-center align-center text-center">
+                <p className="text-3xl font-bold text-center mt-4">{timeLeft}</p>
+                <p id="confidence" className="text-xl text-green-500">{confidence}</p>
+                <p className="text-xl">{confidenceForThisLetter}</p>
+            
+                <button
+                    onClick={() => setSuccess(true)}
+                    className={`text-3xl font-bold text-center mt-4 ${success ? 'bg-green-500 text-white' : 'bg-red-500 text-white'}`}
+                >
+                    {success ? "yay!" : "SHATTER"}
+                </button>
+            
+                <p id="expected" className="text-xl mt-4">{letterToSign}</p>
+                <p className="text-xl">You are player {playerNumber}</p>
+            
+                <div className="flex space-x-4 mt-4">
+                    <label className="text-2xl">
+                    <input
+                        type="radio"
+                        name="player"
+                        value="1"
+                        id="player1select"
+                        onClick={() => setPlayerNumber(1)}
+                    />
+                    PLAYER 1
+                    </label>
+            
+                    <label className="text-2xl">
+                    <input
+                        type="radio"
+                        name="player"
+                        value="2"
+                        id="player2select"
+                        onClick={() => setPlayerNumber(2)}
+                    />
+                    PLAYER 2
+                    </label>
+                </div>
+            
+                <div className="text-xl mt-4">PLAYER 1 SCORE: {player1score}</div>
+                <div className="text-xl">PLAYER 2 SCORE: {player2score}</div>
+            
+                <div className="text-xl mt-4">{JSON.stringify(calculateAverage(player1confidence, letters))}</div>
+                <div className="text-xl">{JSON.stringify(calculateAverage(player2confidence, letters))}</div>
+            
+                <button
+                    onClick={async () => {
+                    await clearDatabase();
+                    setTimeLeft(63);
+                    setGameStarted(true);
+                    }}
+                    className="text-3xl font-bold text-center bg-blue-500 text-white py-2 px-4 rounded-md mt-4"
+                >
+                    Start
+                </button>
+            </div>
+            <div className="mx-auto p-4 bg-pale_yellow border-4 border-light_brown rounded-lg shadow-md">
+                <GameWindow letterToSign={letterToSign} success={success} />
+            </div>
         </div>
-        <p className="text-3xl font-bold text-center">{timeLeft}</p>
-        <p id="confidence">{confidence}</p>
-        <p>{confidenceForThisLetter}</p>
-        <button onClick={() => setSuccess(true)} className="text-3xl font-bold text-center">{success ? "yay!" : "SHATTER"}</button>
-        <p id="expected">{letterToSign}</p>
-        <p>You are player {playerNumber}</p>
-        <ul>
-            <li>
-                <input type="radio" name="player" value="1" id="player1select" onClick={() => setPlayerNumber(1)} />
-                <label className="text-2xl" htmlFor="player1select">Player 1</label>
-            </li>
-            <li>
-                <input type="radio" name="player" value="2" id="player2select" onClick={() => setPlayerNumber(2)} />
-                <label className="text-2xl" htmlFor="player2select">Player 2</label>
-            </li>
-
-        </ul>
-        <div>Player 1 Score : {player1score}</div>
-        <div>Player 2 Score : {player2score}</div>
-        <div>{JSON.stringify(calculateAverage(player1confidence, letters))}</div>
-        <div>{JSON.stringify(calculateAverage(player2confidence, letters))}</div>
-        <button onClick={async () => {turnOn();}} className="text-3xl font-bold text-center">Start</button>
-    </div>
-    );
+        </div>
+      );
+      
+      
 }
