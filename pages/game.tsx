@@ -56,8 +56,7 @@ export default function Game() {
             let currLetter = document.getElementById("signLabel");
             let expected = document.getElementById("expected");
             let conf = document.getElementById("confidence")
-            // console.log("currentletter: " + currLetter?.innerHTML.toLowerCase())
-            // console.log("expected: " + expected?.innerHTML.toLowerCase())
+          
             if(!success && (currLetter?.innerHTML.toLowerCase() === expected?.innerHTML.toLowerCase())) {
                 setSuccess(true);
                 setConfidenceForThisLetter(Number(conf?.innerHTML));
@@ -81,7 +80,6 @@ export default function Game() {
             setTimeout(async () => {
                 // store the letter data in firebase
                 if ( success) {
-                    console.log("success")
                     const docRef = doc(firestore, "players", "player" + String(playerNumber));
                     const docSnap = await getDoc(docRef);
 
@@ -109,10 +107,8 @@ export default function Game() {
                             
                         })
                     }
-                    console.log("done adding to firebase")
                 }
                 else {
-                    console.log("failure")
                     const docRef = doc(firestore, "players", "player" + String(playerNumber));
                     const docSnap = await getDoc(docRef);
 
@@ -143,7 +139,6 @@ export default function Game() {
                             score : score
                         })
                     }
-                    console.log("done adding to firebase")}  
             }, 6500);
         }
 
