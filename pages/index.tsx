@@ -1,3 +1,4 @@
+import { Img } from "@chakra-ui/react"
 import React, { useRef, useState, useEffect } from "react"
 
 export default function Home() {
