@@ -139,6 +139,7 @@ export default function Game() {
                             score : score
                         })
                     }
+                    }  
             }, 6500);
         }
 
