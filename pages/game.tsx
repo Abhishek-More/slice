@@ -5,6 +5,9 @@ import { use, useEffect, useState } from "react";
 import random, { RNG } from "random";
 import seedrandom from "seedrandom";
 import Cam from "@/components/Cam";
+import { getFirestore, collection, getDoc, doc, onSnapshot, setDoc } from 'firebase/firestore';
+import { initializeApp } from 'firebase/app';
+import { string } from "prop-types";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -19,7 +22,42 @@ export default function Game() {
     const [gameStarted, setGameStarted] = useState(false);
     const [playerNumber, setPlayerNumber] = useState(1);
 
+    const firebaseConfig = {
+        apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+        authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+        projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+        storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+        messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+        appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+      };
+
+    const app = initializeApp(firebaseConfig);
+    const firestore = getFirestore(app);
+
     let ender;
+
+    async function clearDatabase()
+    {
+        await setDoc(doc(firestore, "players", "player" + String(playerNumber)), {
+            //confidences: confidences.push(letterToSign),
+            correct: [],
+            confidences: [],
+            letters:  [],
+            score : 0
+        })
+    }
+
+    useEffect(() => {
+        setInterval(() => {
+            let currLetter = document.getElementById("signLabel");
+            let expected = document.getElementById("expected");
+            console.log("currentletter: " + currLetter?.innerHTML.toLowerCase())
+            console.log("expected: " + expected?.innerHTML.toLowerCase())
+            if(currLetter?.innerHTML.toLowerCase() === expected?.innerHTML.toLowerCase()) {
+                setSuccess(true);
+            }
+        }, 1000);
+    }, []);
     
     useEffect(() => {        
         if (!timeLeft || !gameStarted) return;
@@ -32,18 +70,60 @@ export default function Game() {
             }
             setLetterToSign(randomLetter);
 
-            setTimeout(() => {
-                let currLetter = document.getElementById("signLabel");
-                let expected = document.getElementById("expected");
-                if(currLetter?.innerHTML.toLowerCase() === expected?.innerHTML.toLowerCase()) {
-                    setSuccess(true);
-                }
-            }, 6500);
+            
 
-            setTimeout(() => {
+            setTimeout(async () => {
                 // store the letter data in firebase
+                if ( success) {
+                    console.log("success")
+                    const docRef = doc(firestore, "players", "player" + String(playerNumber));
+                    const docSnap = await getDoc(docRef);
 
-            }, 6000);
+                    if (docSnap.exists()) {
+                        //let confidences = docSnap.data().confidences;
+                        let correct = docSnap.data().correct;
+                        let confidences = docSnap.data().confidences;
+                        let score = docSnap.data().score;
+                        let letters = docSnap.data().letters;
+                        correct.push(true)
+                        letters.push(letterToSign)
+                    await setDoc(doc(firestore, "players", "player" + String(playerNumber)), {
+                            //confidences: confidences.push(letterToSign),
+                            correct: correct,
+                            confidences: confidences,
+                            letters:  letters,
+                            score : score + 1
+                        })
+                    }
+                    console.log("done adding to firebase")
+                }
+                else {
+                    console.log("failure")
+                    const docRef = doc(firestore, "players", "player" + String(playerNumber));
+                    const docSnap = await getDoc(docRef);
+
+                    if (docSnap.exists()) {
+                        //let confidences = docSnap.data().confidences;
+                        let correct = docSnap.data().correct;
+                        let confidences = docSnap.data().confidences;
+                        let score = docSnap.data().score;
+                        let letters = docSnap.data().letters;
+                        console.log(correct)
+                        console.log(confidences)
+                        console.log(score)
+                        console.log(letters)
+                        correct.push(false)
+                        letters.push(letterToSign)
+                    await setDoc(doc(firestore, "players", "player" + String(playerNumber)), {
+                            //confidences: confidences.push(letterToSign),
+                            correct: correct,
+                            confidences: confidences,
+                            letters:  letters,
+                            score : score
+                        })
+                    }
+                    console.log("done adding to firebase")}  
+            }, 6500);
         }
 
         const intervalId = setInterval(() => {
@@ -76,7 +156,7 @@ export default function Game() {
             </li>
 
         </ul>
-        <button onClick={() => {setTimeLeft(63); setGameStarted(true)}} className="text-3xl font-bold text-center">Start</button>
+        <button onClick={async () => {await clearDatabase(); setTimeLeft(63); setGameStarted(true); }} className="text-3xl font-bold text-center">Start</button>
     </div>
     );
 }
