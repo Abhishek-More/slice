@@ -1,118 +1,269 @@
-import Image from "next/image";
-import { Inter } from "next/font/google";
+import React, { useRef, useState, useEffect } from "react"
+import "@tensorflow/tfjs-backend-webgl"
+import * as handpose from "@tensorflow-models/handpose"
+import Webcam from "react-webcam"
+import { drawHand } from "../components/handposeutil"
+import * as fp from "fingerpose"
+import Handsigns from "../components/handsigns"
 
-const inter = Inter({ subsets: ["latin"] });
+import {
+  Text,
+  Heading,
+  Button,
+  Image,
+  Stack,
+  Container,
+  Box,
+  VStack,
+  ChakraProvider,
+} from "@chakra-ui/react"
+
+import { Signimage, Signpass } from "../components/handimage"
+
+import { RiCameraFill, RiCameraOffFill } from "react-icons/ri"
 
 export default function Home() {
+  const webcamRef = useRef(null)
+  const canvasRef = useRef(null)
+
+  const [camState, setCamState] = useState("on")
+
+  const [sign, setSign] = useState(null)
+
+  let signList = []
+  let currentSign = 0
+
+  let gamestate = "started"
+
+  // let net;
+
+  async function runHandpose() {
+    const net = await handpose.load()
+    _signList()
+
+    // window.requestAnimationFrame(loop);
+
+    setInterval(() => {
+      detect(net)
+    }, 150)
+  }
+
+  function _signList() {
+    signList = generateSigns()
+  }
+
+  function shuffle(a) {
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1))
+      ;[a[i], a[j]] = [a[j], a[i]]
+    }
+    return a
+  }
+
+  function generateSigns() {
+    const password = shuffle(Signpass)
+    return password
+  }
+
+  async function detect(net) {
+    // Check data is available
+    if (
+      typeof webcamRef.current !== "undefined" &&
+      webcamRef.current !== null &&
+      webcamRef.current.video.readyState === 4
+    ) {
+      // Get Video Properties
+      const video = webcamRef.current.video
+      const videoWidth = webcamRef.current.video.videoWidth
+      const videoHeight = webcamRef.current.video.videoHeight
+
+      // Set video width
+      webcamRef.current.video.width = videoWidth
+      webcamRef.current.video.height = videoHeight
+
+      // Set canvas height and width
+      canvasRef.current.width = videoWidth
+      canvasRef.current.height = videoHeight
+
+      // Make Detections
+      const hand = await net.estimateHands(video)
+
+      if (hand.length > 0) {
+        //loading the fingerpose model
+        const GE = new fp.GestureEstimator([
+          fp.Gestures.ThumbsUpGesture,
+          Handsigns.aSign,
+          Handsigns.bSign,
+          Handsigns.cSign,
+          Handsigns.dSign,
+          Handsigns.eSign,
+          Handsigns.fSign,
+          Handsigns.gSign,
+          Handsigns.hSign,
+          Handsigns.iSign,
+          Handsigns.jSign,
+          Handsigns.kSign,
+          Handsigns.lSign,
+          Handsigns.mSign,
+          Handsigns.nSign,
+          Handsigns.oSign,
+          Handsigns.pSign,
+          Handsigns.qSign,
+          Handsigns.rSign,
+          Handsigns.sSign,
+          Handsigns.tSign,
+          Handsigns.uSign,
+          Handsigns.vSign,
+          Handsigns.wSign,
+          Handsigns.xSign,
+          Handsigns.ySign,
+          Handsigns.zSign,
+        ])
+
+        const estimatedGestures = await GE.estimate(hand[0].landmarks, 6.5)
+        // document.querySelector('.pose-data').innerHTML =JSON.stringify(estimatedGestures.poseData, null, 2);
+
+        if (
+          estimatedGestures.gestures !== undefined &&
+          estimatedGestures.gestures.length > 0
+        ) {
+          const confidence = estimatedGestures.gestures.map(p => p.confidence)
+          const maxConfidence = confidence.indexOf(
+            Math.max.apply(undefined, confidence)
+          )
+
+          //setting up game state, looking for thumb emoji
+          console.log("HI")
+          gamestate = "played"
+          if (gamestate === "played") {
+            document.querySelector("#app-title").innerText = ""
+
+            if (
+              typeof signList[currentSign].src.src === "string" ||
+              signList[currentSign].src.src instanceof String
+            ) {
+              if (
+                signList[currentSign].alt ===
+                estimatedGestures.gestures[maxConfidence].name
+              ) {
+                currentSign++
+              }
+              setSign(estimatedGestures.gestures[maxConfidence].name)
+            }
+          } else if (gamestate === "finished") {
+            return
+          }
+        }
+      }
+      // Draw hand lines
+      const ctx = canvasRef.current.getContext("2d")
+      drawHand(hand, ctx)
+    }
+  }
+
+  //   if (sign) {
+  //     console.log(sign, Signimage[sign])
+  //   }
+
+  useEffect(() => {
+    runHandpose()
+  }, [])
+
+  function turnOffCamera() {
+    if (camState === "on") {
+      setCamState("off")
+    } else {
+      setCamState("on")
+    }
+  }
+
   return (
-    <main
-      className={`flex min-h-screen flex-col items-center justify-between p-24 ${inter.className}`}
-    >
-      <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">pages/index.tsx</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:h-auto lg:w-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+    <ChakraProvider>
+      <Box>
+        <Container centerContent maxW="xl" height="20vh" pt="0" pb="0">
+          <VStack spacing={4} align="center">
+          </VStack>
+
+          <Heading
+            as="h1"
+            size="lg"
+            id="app-title"
+            color="black"
+            textAlign="center"
           >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
+            Loading
+          </Heading>
 
-      <div className="relative flex place-items-center before:absolute before:h-[300px] before:w-full sm:before:w-[480px] before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-full sm:after:w-[240px] after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700/10 after:dark:from-sky-900 after:dark:via-[#0141ff]/40 before:lg:h-[360px]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
+          <Box id="webcam-container">
+            {camState === "on" ? (
+              <Webcam id="webcam" ref={webcamRef} />
+            ) : (
+              <div id="webcam" background="black"></div>
+            )}
 
-      <div className="mb-32 grid text-center lg:max-w-5xl lg:w-full lg:mb-0 lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Docs{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
+            {sign ? (
+              <div
+                style={{
+                  position: "absolute",
+                  marginLeft: "auto",
+                  marginRight: "auto",
+                  right: "calc(50% - 50px)",
+                  bottom: 100,
+                  textAlign: "-webkit-center",
+                }}
+              >
+                <Text color="black" fontSize="sm" mb={1}>
+                  detected gestures
+                </Text>
+                <img
+                  alt="signImage"
+                  src={
+                    Signimage[sign]?.src
+                      ? Signimage[sign].src
+                      : "/loveyou_emoji.svg"
+                  }
+                  style={{
+                    height: 30,
+                  }}
+                />
+              </div>
+            ) : (
+              " "
+            )}
+          </Box>
 
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Learn{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
+          <canvas id="gesture-canvas" ref={canvasRef} style={{}} />
 
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Templates{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Discover and deploy boilerplate example Next.js&nbsp;projects.
-          </p>
-        </a>
+          <Box
+            id="singmoji"
+            style={{
+              zIndex: 9,
+              position: "fixed",
+              top: "50px",
+              right: "30px",
+            }}
+          ></Box>
 
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Deploy{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50 text-balance`}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
-  );
+          <Image h="150px" objectFit="cover" id="emojimage" />
+          {/* <pre className="pose-data" color="white" style={{position: 'fixed', top: '150px', left: '10px'}} >Pose data</pre> */}
+        </Container>
+
+        <Stack id="start-button" spacing={4} direction="row" align="center">
+          <Button
+            leftIcon={
+              camState === "on" ? (
+                <RiCameraFill size={20} />
+              ) : (
+                <RiCameraOffFill size={20} />
+              )
+            }
+            onClick={turnOffCamera}
+            colorScheme="orange"
+          >
+            Camera
+          </Button>
+        </Stack>
+      </Box>
+    </ChakraProvider>
+  )
 }
