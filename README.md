@@ -1,4 +1,4 @@
-## Slice
+# Slice
 
 Check out the project on [Devpost](https://devpost.com/software/slice-m6zqpf)
 
